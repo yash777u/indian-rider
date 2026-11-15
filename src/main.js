@@ -37,10 +37,9 @@ sun.position.set(-12, 25, 15);
 scene.add(sun);
 
 const mat = (color, roughness = .9, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
-const freeModels = {};
-const freeModelLoader = new GLTFLoader();
-const FREE_MODEL_BASE = 'https://cdn.jsdelivr.net/gh/kayquer/kit-cidade-lowpoly@main/models/';
-function fitFreeModel(template, maxWidth, maxHeight, maxDepth) {
+const originalBuildingModels = [];
+const originalAssetLoader = new GLTFLoader();
+function fitOriginalModel(template, maxWidth, maxHeight, maxDepth) {
   const root = new THREE.Group();
   const model = template.clone(true);
   const bounds = new THREE.Box3().setFromObject(model);
@@ -53,12 +52,19 @@ function fitFreeModel(template, maxWidth, maxHeight, maxDepth) {
   root.add(model);
   return root;
 }
-function loadFreeModel(key, path) {
-  freeModelLoader.load(FREE_MODEL_BASE + path, gltf => {
-    freeModels[key] = gltf.scene;
-    if (key === 'shop' || key === 'market') applyFreeBuildings();
-    if (key === 'trafficLight' || key === 'busStop' || key === 'palm') applyFreeStreetProps();
-  }, undefined, error => console.warn('Optional free model failed to load:', key, error));
+function loadOriginalBuildingModels() {
+  const paths = [
+    '01_scooter_garage','02_kirana_store','03_chai_tapri','04_medical_store','05_punjabi_dhaba',
+    '06_sweet_shop','07_mobile_shop','08_bank','09_atm_kiosk','10_police_station',
+    '11_city_hospital','12_public_school','13_hindu_temple','14_mosque','15_gurdwara',
+    '16_bus_stand','17_petrol_pump','18_cinema','19_shopping_complex','20_residential_apartment'
+  ];
+  paths.forEach((id, index) => {
+    originalAssetLoader.load('/models/original/' + id + '.glb', gltf => {
+      originalBuildingModels[index] = gltf.scene;
+      if (originalBuildingModels.filter(Boolean).length === paths.length) applyOriginalBuildings();
+    }, undefined, error => console.warn('Original building asset unavailable:', id, error));
+  });
 }
 const M = {
   asphalt: mat(0x303638), edge: mat(0xe4d6ad), pavement: mat(0x777d70),
@@ -171,79 +177,63 @@ function makeChunk(z) {
   cityChunks.push(group);
 }
 for (let z=-220; z<20; z+=24) makeChunk(z);
-function applyFreeBuildings() {
-  if (!freeModels.shop || !freeModels.market) return;
-  cityChunks.forEach((chunk, index) => {
+function applyOriginalBuildings() {
+  if (originalBuildingModels.length < 20 || originalBuildingModels.some(model => !model)) return;
+  cityChunks.forEach((chunk, chunkIndex) => {
     for (const info of chunk.userData.buildings || []) {
-      const key = (index + (info.side > 0 ? 1 : 0)) % 3 === 0 && freeModels.market ? 'market' : 'shop';
-      const template = freeModels[key] || freeModels.shop || freeModels.market;
-      if (!template || info.building.userData.freeModelApplied) continue;
-      const model = fitFreeModel(template, info.width * 1.05, info.height * 1.15, info.depth * 1.05);
+      const buildingIndex = (chunkIndex * 2 + (info.side > 0 ? 1 : 0)) % 20;
+      if (info.building.userData.originalModelApplied) continue;
+      const template = originalBuildingModels[buildingIndex];
+      const model = fitOriginalModel(template, info.width * 1.12, info.height * 1.15, info.depth * 1.12);
       model.position.set(info.x, 0, 0);
       model.rotation.y = info.side < 0 ? Math.PI / 2 : -Math.PI / 2;
       chunk.add(model);
       info.building.visible = false;
-      info.building.userData.freeModelApplied = true;
+      info.building.userData.originalModelApplied = true;
     }
   });
 }
-function applyFreeStreetProps() {
-  cityChunks.forEach((chunk, index) => {
-    for (const side of [-1, 1]) {
-      const addProp = (key, x, z, width, height, depth, suffix) => {
-        const template = freeModels[key];
-        if (!template || chunk.userData['prop_' + key + '_' + side]) return;
-        const prop = fitFreeModel(template, width, height, depth);
-        prop.position.set(x, 0, z);
-        prop.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
-        chunk.add(prop);
-        chunk.userData['prop_' + key + '_' + side] = true;
-      };
-      if (index % 2 === 0) addProp('trafficLight', side * 6.65, 4.5, 1.1, 4.2, 1.1, 'signal');
-      if (index % 3 === 1) addProp('busStop', side * 8.2, -5.5, 3.2, 3.3, 2.2, 'stop');
-      if (index % 3 === 2) addProp('palm', side * 8.1, 6.5, 2.6, 6.5, 2.6, 'palm');
-    }
-  });
-}
-[
-  ['shop', 'comercial/loja_esquina.glb'],
-  ['market', 'comercial/mercado.glb'],
-  ['trafficLight', 'mobiliario/semaforo.glb'],
-  ['busStop', 'mobiliario/ponto_onibus.glb'],
-  ['palm', 'vegetacao/buriti.glb'],
-  ['car', 'veiculos/carro.glb'],
-  ['bus', 'veiculos/onibus.glb']
-].forEach(([key, path]) => loadFreeModel(key, path));
+loadOriginalBuildingModels();
 
 function createScooter() {
   const root = new THREE.Group();
-  const body = new THREE.Group(); root.add(body);
-  box(body, .76, .42, 1.38, M.gold, 0, .88, 0);
-  box(body, .55, .58, .62, M.cream, 0, 1.22, -.18);
-  box(body, .66, .13, .48, M.black, 0, 1.55, -.1);
-  box(body, .56, .2, .22, M.red, 0, .66, -.72);
+  const fallbackVehicle = new THREE.Group();
+  root.add(fallbackVehicle);
+  box(fallbackVehicle, .76, .42, 1.38, M.gold, 0, .88, 0);
+  box(fallbackVehicle, .55, .58, .62, M.cream, 0, 1.22, -.18);
+  box(fallbackVehicle, .66, .13, .48, M.black, 0, 1.55, -.1);
+  box(fallbackVehicle, .56, .2, .22, M.red, 0, .66, -.72);
   for (const z of [-.72, .72]) {
     const wheel = new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.18,16), M.rubber);
-    wheel.rotation.z = Math.PI/2; wheel.position.set(0,.34,z); root.add(wheel);
+    wheel.rotation.z = Math.PI/2; wheel.position.set(0,.34,z); fallbackVehicle.add(wheel);
     const hub = new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.2,12), M.gold);
-    hub.rotation.z = Math.PI/2; hub.position.copy(wheel.position); root.add(hub);
-    root.userData.wheels = (root.userData.wheels || []).concat(wheel);
+    hub.rotation.z = Math.PI/2; hub.position.copy(wheel.position); fallbackVehicle.add(hub);
   }
-  box(body, 1.0, .07, .08, M.black, 0, 1.58, .4);
-  box(body, .12, .45, .12, M.black, 0, 1.32, .4);
-  box(body, .38, .65, .34, M.blue, 0, 1.72, -.08).rotation.x = -.18;
-  sphere(body, .23, M.skin, 0, 2.17, -.12);
-  sphere(body, .25, M.red, 0, 2.29, -.13, 1.06, .72, 1.04);
+  box(fallbackVehicle, 1.0, .07, .08, M.black, 0, 1.58, .4);
+  box(fallbackVehicle, .12, .45, .12, M.black, 0, 1.32, .4);
+  const rider = new THREE.Group();
+  box(rider, .38, .65, .34, M.blue, 0, 1.72, -.08).rotation.x = -.18;
+  sphere(rider, .23, M.skin, 0, 2.17, -.12);
+  sphere(rider, .25, M.red, 0, 2.29, -.13, 1.06, .72, 1.04);
+  root.add(rider);
+  root.userData.fallbackVehicle = fallbackVehicle;
+  root.userData.wheels = [];
+  originalAssetLoader.load('/models/original/rider125_scooter.glb', gltf => {
+    const scooter = gltf.scene;
+    scooter.traverse(node => {
+      if (node.isMesh) { node.castShadow = false; node.receiveShadow = false; }
+      if (node.isMesh && /wheel/i.test(node.name)) root.userData.wheels.push(node);
+    });
+    root.add(scooter);
+    fallbackVehicle.visible = false;
+    root.userData.originalScooter = scooter;
+  }, undefined, error => console.warn('Original scooter unavailable; using procedural fallback', error));
   root.position.set(0,0,3.4);
   scene.add(root); return root;
 }
 const player = createScooter();
 
 function makeVehicle(type) {
-  if ((type === 'car' || type === 'bus') && freeModels[type]) {
-    const dimensions = type === 'bus' ? [2.25, 2.5, 4.6] : [1.55, 1.8, 2.8];
-    return fitFreeModel(freeModels[type], dimensions[0], dimensions[1], dimensions[2]);
-  }
   const group = new THREE.Group();
   if (type === 'cow') {
     box(group, 1.12, .72, .7, M.cream, 0, .88, 0);

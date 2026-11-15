@@ -364,7 +364,10 @@ function crash() {
 function steer(direction) { state.lane=THREE.MathUtils.clamp(state.lane+direction,0,4); }
 let swipeStart = null;
 renderer.domElement.addEventListener('pointerdown', event => {
-  if (event.pointerType === 'touch' && state.mode === 'playing') swipeStart = { x: event.clientX, y: event.clientY };
+  if (event.pointerType === 'touch' && state.mode === 'playing') {
+    swipeStart = { x: event.clientX, y: event.clientY };
+    try { renderer.domElement.setPointerCapture(event.pointerId); } catch {}
+  }
 });
 renderer.domElement.addEventListener('pointerup', event => {
   if (!swipeStart) return;

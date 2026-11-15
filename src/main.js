@@ -108,6 +108,25 @@ const shopSignMats = shopNames.map((label, index) => {
 });
 function makeChunk(z) {
   const group = new THREE.Group();
+  // Repeating zebra crossings and raised speed breakers are part of the moving road kit.
+  const chunkIndex = cityChunks.length;
+  if (chunkIndex % 4 === 1) {
+    for (let stripe=0; stripe<7; stripe++) {
+      box(group, 10.8, .035, .42, M.cream, 0, -.012, -2.5 + stripe*.78);
+    }
+    box(group, 11, .025, .12, M.gold, 0, -.008, -3.05);
+  }
+  if (chunkIndex % 6 === 3) {
+    box(group, 11.4, .1, .24, M.gold, 0, .025, 1.2);
+    for (let mark=-5; mark<=5; mark+=2) box(group, .65, .012, .25, M.black, mark, .082, 1.2);
+  }
+  // Storm-water grates along both kerbs.
+  for (const drainSide of [-1,1]) {
+    for (let grate=0; grate<4; grate++) {
+      const cover=box(group,.55,.025,.22,M.black,drainSide*5.72,-.18,-8+grate*5);
+      cover.material=mat(0x454b49);
+    }
+  }
   for (const side of [-1, 1]) {
     const width = 4.5 + Math.random() * 3;
     const height = 5 + Math.random() * 9;

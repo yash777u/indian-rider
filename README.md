@@ -3,6 +3,9 @@
 A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride through traffic, avoid autos, buses and cows, collect parcels and earn rupees.
 
 ## Current gameplay
+- Original procedural North-Indian street kit: chai cart stalls with Hindi signboard, fabric awnings, utility wires, street lamps, kerb bollards, zebra crossings, speed breakers and drain grates
+- Atmospheric sky dome with warm horizon gradient, low sun and drifting cloud banks
+- Animated procedural pedestrians with varied outfits, body shapes, commuter bags and walking cycles
 - Repeating Indian-inspired city street with named storefronts, plus imported low-poly GLB shops, market buildings, traffic lights, bus stops and palm trees
 - Third-person scooter and rider model with lean, suspension bob and rotating wheels
 - Moving traffic: imported low-poly cars and buses (with procedural fallbacks), plus auto-rickshaws and cows
@@ -44,6 +47,12 @@ npm run preview
 
 ## Known scope limits
 This is a compact arcade city-driving slice, not a full GTA-scale open world. The city corridor repeats procedurally; current pedestrians and traffic use lightweight scripted movement rather than advanced AI or physics simulation. There is no online multiplayer, cloud save, or persistent cross-device economy yet. The personal-best score is stored only in the current browser.
+
+## Art direction and procedural assets
+- The original visual direction is documented in the Indian Rider environment concept boards created during development
+- `src/indian-world.js` builds the sky, clouds, chai stalls, Hindi signage, street furniture, overhead wires and animated pedestrian models directly in Three.js
+- Road crossings, raised speed breakers and drainage details are attached to repeating road chunks in `src/main.js`
+- These are lightweight runtime 3D meshes, not flat concept images; the concept boards are visual references rather than textures or shipped game assets
 
 ## Next upgrades
 - Distinct neighbourhoods and route selection

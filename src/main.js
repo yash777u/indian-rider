@@ -258,9 +258,9 @@ function createScooter() {
   root.userData.fallbackVehicle = fallbackVehicle;
   root.userData.wheels = [];
   root.userData.frontWheel = null;
-  originalAssetLoader.load('/models/original/r15_sport_bike.glb', gltf => {
+  originalAssetLoader.load('/models/original/rider125_scooter.glb', gltf => {
     const bikeModel = gltf.scene;
-    bikeModel.name = 'Indian Rider R15 Sport Bike';
+    bikeModel.name = 'Indian Rider Original Rider 125 Scooter';
     bikeModel.traverse(node => {
       if (node.isMesh) {
         node.castShadow = !isMobile;
@@ -281,7 +281,7 @@ function createScooter() {
     root.userData.modelLoaded = true;
   }, undefined, error => {
     root.userData.modelLoaded = false;
-    console.warn('Original R15-style bike unavailable; using procedural fallback', error);
+    console.warn('Original Rider 125 scooter unavailable; using procedural fallback', error);
   });
   root.position.set(0,0,3.4);
   scene.add(root); return root;

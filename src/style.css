@@ -9,3 +9,17 @@
 .bottom-hint{position:absolute;bottom:25px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:3px;color:#d1d2c7;z-index:2}.touch-controls{position:absolute;z-index:5;bottom:35px;left:0;right:0;padding:0 8vw;display:flex;justify-content:space-between;align-items:center}.touch-controls button{width:62px;height:62px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(12,21,21,.55);color:white;font-size:25px;backdrop-filter:blur(6px);touch-action:none}.touch-controls #brake{width:70px;height:48px;border-radius:8px;font-size:10px;letter-spacing:1px}
 [hidden]{display:none!important}
 @media(max-width:700px){.topbar{padding:18px 20px}.intro{left:7vw;top:25%;max-width:85%}.intro h1{font-size:clamp(76px,19vw,116px)}.intro p{font-size:12px}.mobile-note{display:block}.controls-hint{display:none}.hud{top:82px;left:15px;right:15px;gap:6px}.hud-card{min-width:0;flex:1;padding:9px}.hud-card strong{font-size:22px}.hud-card small{font-size:7px;letter-spacing:1px}.mission{top:150px;right:15px;padding:9px 12px}.bottom-hint{font-size:7px;letter-spacing:1.5px}.result{padding:28px 18px}.top-right{font-size:8px}.touch-controls{padding:0 7vw;bottom:22px}}
+
+
+/* Gameplay systems added in the performance pass */
+.game-dynamic{position:absolute;inset:0;z-index:4;pointer-events:none}
+.pause-game{position:absolute;right:4.5vw;top:24px;pointer-events:auto;border:1px solid #9b9f91;background:rgba(10,18,18,.58);color:#f5f0e5;padding:9px 12px;font-size:9px;letter-spacing:1.5px;cursor:pointer}
+.game-stats{position:absolute;left:4.5vw;bottom:24px;display:flex;gap:10px;color:#f4d18a;font-size:9px;letter-spacing:1.4px;text-shadow:0 2px 8px #111}
+.game-toast{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);background:#a33c2d;color:white;padding:12px 18px;font-size:10px;letter-spacing:1px;opacity:0;transition:opacity .15s}
+.game-toast.show{opacity:1}
+.game-modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90%,450px);text-align:center;background:rgba(12,21,21,.96);border:1px solid rgba(240,230,200,.25);padding:36px 28px;pointer-events:auto}
+.game-modal small{color:#e8bd62;letter-spacing:2px}.game-modal h2{font:900 56px 'Barlow Condensed';margin:16px 0}.game-modal h2 em{color:#e8bd62;font-style:normal}.game-modal p{color:#bdc6bd;font-size:12px;margin-bottom:24px}.game-modal .start-btn{margin:auto}
+.minimap-wrap{position:absolute;z-index:3;right:4.5vw;top:150px;width:100px;height:100px;border:2px solid rgba(238,222,184,.55);background:#1d2928;pointer-events:none}
+.minimap{width:100%;height:100%}.touch-go{width:68px!important;height:48px!important;border-radius:8px!important;font-size:10px!important;letter-spacing:1px;background:rgba(194,145,57,.75)!important}
+.game-error{position:absolute;inset:0;display:grid;place-items:center;padding:30px;color:#fff;text-align:center;background:#111918}
+@media(max-width:700px){.pause-game{top:15px;right:14px}.minimap-wrap{top:132px;right:13px;width:78px;height:78px}.game-stats{left:14px;bottom:16px;font-size:7px;gap:7px}.game-modal{padding:28px 18px}.game-modal h2{font-size:46px}.touch-go{width:58px!important;height:43px!important}}

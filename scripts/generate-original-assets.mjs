@@ -169,7 +169,7 @@ function makeBuilding(d,index){
     const floors=Math.max(2,Math.floor(h/3));
     for(let f=0;f<floors;f++){
       for(let x=-2.5;x<=2.5;x+=2.5) windowBox(o,x,1.8+f*2.7,3.38,.85,1.25,(f+x)%2?C.glass:C.sky);
-      box(o,0,.12,1.8+f*2.7,7.6,.12,6.65,d.a);
+      box(o,0,1.8+f*2.7,3.36,7.6,.12,.08,d.a);
     }
     sign(o,0,h-.8,3.55,6.7,.85,d.a);
     if(k==='hospital') { box(o,0,h-.8,3.74,.22,.55,.06,C.white);box(o,0,h-.8,3.74,.55,.22,.06,C.white); }
@@ -233,6 +233,7 @@ function makeScooter(){
   add('Frame and floorboard',o=>{
     B(o,0,.66,.08,.72,.2,1.22,C.charcoal);B(o,0,.78,.1,.88,.13,.85,C.orange);
     B(o,0,.92,.56,.78,.9,.28,C.orange);B(o,0,1.12,.64,.62,.48,.18,C.orange);
+    sphere(o,0,1.12,.54,.43,.46,.42,C.orange,14,9);
     B(o,0,1.2,.76,.38,.28,.1,C.black);
     B(o,0,.82,-.42,.65,.16,.68,C.black);
   });
@@ -241,6 +242,8 @@ function makeScooter(){
     B(o,0,1.0,-.82,.66,.32,.16,C.black);
     sphere(o,0,1.48,-.85,.29,.2,.08,C.ivory,14,8);
     B(o,-.34,1.18,-.83,.09,.24,.08,C.gold);B(o,.34,1.18,-.83,.09,.24,.08,C.gold);
+    B(o,-.18,1.48,-.91,.2,.12,.055,C.white);B(o,.18,1.48,-.91,.2,.12,.055,C.white);
+    B(o,0,1.3,-.92,.1,.08,.04,C.gold);
     B(o,0,.92,-.86,.55,.08,.12,C.charcoal);
   });
   add('Seat',o=>{
@@ -264,6 +267,8 @@ function makeScooter(){
   add('Front wheel',o=>{
     cylinder(o,0,.36,-.98,.36,.18,C.black,24,'x');cylinder(o,0,.36,-.98,.23,.2,C.steel,20,'x');
     cylinder(o,0,.36,-.98,.1,.22,C.gold,16,'x');
+    cylinder(o,-.105,.36,-.98,.24,.025,C.steel,24,'x');
+    cylinder(o,-.13,.42,-.86,.055,.25,C.red,10);
     for(let i=0;i<8;i++){const a=i*Math.PI/4;B(o,0,.36+Math.cos(a)*.17,-.98+Math.sin(a)*.17,.2,.035,.035,C.steel);}
   },[0,.36,-.98]);
   add('Front suspension and mudguard',o=>{
@@ -274,10 +279,12 @@ function makeScooter(){
     cylinder(o,-.28,.7,.65,.065,.78,C.steel,10);
     cylinder(o,.32,.42,.72,.12,.92,C.charcoal,12,'z');
     cylinder(o,.32,.42,.24,.14,.12,C.steel,12,'z');
+    sphere(o,.32,.42,.2,.16,.14,.12,C.steel,12,8);
     B(o,.28,.78,.72,.2,.12,.52,C.orange);
   });
   add('Tail and number plate',o=>{
     B(o,0,1.1,1.0,.5,.2,.18,C.red);B(o,0,.84,1.12,.42,.25,.06,C.white);
+    B(o,0,1.16,1.1,.3,.08,.05,C.red);
     B(o,0,.86,1.16,.28,.04,.02,C.charcoal);
     B(o,0,1.02,1.12,.16,.08,.05,C.red);
   });

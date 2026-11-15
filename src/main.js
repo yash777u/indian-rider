@@ -218,16 +218,32 @@ function createScooter() {
   root.add(rider);
   root.userData.fallbackVehicle = fallbackVehicle;
   root.userData.wheels = [];
+  root.userData.frontWheel = null;
   originalAssetLoader.load('/models/original/r15_sport_bike.glb', gltf => {
-    const scooter = gltf.scene;
-    scooter.traverse(node => {
-      if (node.isMesh) { node.castShadow = false; node.receiveShadow = false; }
-      if (node.isMesh && /wheel/i.test(node.name)) root.userData.wheels.push(node);
+    const bikeModel = gltf.scene;
+    bikeModel.name = 'Indian Rider R15 Sport Bike';
+    bikeModel.traverse(node => {
+      if (node.isMesh) {
+        node.castShadow = !isMobile;
+        node.receiveShadow = false;
+        if (node.material) {
+          node.material.side = THREE.DoubleSide;
+          node.material.needsUpdate = true;
+        }
+      }
+      if (node.isMesh && /wheel/i.test(node.name)) {
+        root.userData.wheels.push(node);
+        if (/front/i.test(node.name)) root.userData.frontWheel = node;
+      }
     });
-    root.add(scooter);
+    root.add(bikeModel);
     fallbackVehicle.visible = false;
-    root.userData.originalScooter = scooter;
-  }, undefined, error => console.warn('Original R15-style bike unavailable; using procedural fallback', error));
+    root.userData.originalScooter = bikeModel;
+    root.userData.modelLoaded = true;
+  }, undefined, error => {
+    root.userData.modelLoaded = false;
+    console.warn('Original R15-style bike unavailable; using procedural fallback', error);
+  });
   root.position.set(0,0,3.4);
   scene.add(root); return root;
 }
@@ -486,7 +502,12 @@ function update(dt,now) {
   player.rotation.z=THREE.MathUtils.damp(player.rotation.z,(lanes[state.lane]-player.position.x)*-.12,8,dt);
   player.rotation.y=THREE.MathUtils.damp(player.rotation.y,(lanes[state.lane]-player.position.x)*.055,7,dt);
   player.position.y=Math.sin(now*.009)*.018;
+  // Wheel pivots are centred on their axles; roll both wheels and steer the front independently.
   for(const wheel of player.userData.wheels) wheel.rotation.x-=travel*1.8;
+  if(player.userData.frontWheel){
+    const steerAngle=THREE.MathUtils.clamp((lanes[state.lane]-player.position.x)*.055,-.13,.13);
+    player.userData.frontWheel.rotation.y=THREE.MathUtils.damp(player.userData.frontWheel.rotation.y,steerAngle,10,dt);
+  }
   for(const mark of laneMarks){mark.position.z+=travel;if(mark.position.z>16)mark.position.z-=234;}
   for(const chunk of cityChunks){chunk.position.z+=travel;if(chunk.position.z>26)chunk.position.z-=240;}
   for(const person of pedestrians){

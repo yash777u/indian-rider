@@ -6,7 +6,8 @@ const ui = {
   game: $('game'), intro: $('intro'), hud: $('hud'), result: $('result'),
   mission: $('mission'), touch: $('touch-controls'), bottom: $('bottom-hint')
 };
-const isMobile = matchMedia('(pointer: coarse)').matches || innerWidth < 760;
+const mobileQuery = matchMedia('(pointer: coarse), (max-width: 760px)');
+let isMobile = mobileQuery.matches;
 let renderer;
 try {
   renderer = new THREE.WebGLRenderer({ antialias: !isMobile, powerPreference: 'high-performance', alpha: false });
@@ -209,7 +210,7 @@ const state = {mode:'menu',lane:2,speed:0,time:90,deliveries:0,cash:0,distance:0
 const keys = {};
 const dynamic = document.createElement('div');
 dynamic.className='game-dynamic';
-dynamic.innerHTML = '<button class="pause-game" id="pause-game" aria-label="Pause game">Ⅱ PAUSE</button><div class="game-stats"><span id="speed-stat">SPEED 0 KM/H</span><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
+dynamic.innerHTML = '<button class="pause-game" id="pause-game" aria-label="Pause game" hidden>Ⅱ PAUSE</button><div class="game-stats" id="live-stats" hidden><span id="speed-stat">SPEED 0 KM/H</span><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
 document.getElementById('app').appendChild(dynamic);
 const toast = (message) => { $('game-toast').textContent=message; $('game-toast').classList.add('show'); state.toast=1.25; };
 function updateHud() {
@@ -235,7 +236,7 @@ addEventListener('keyup',(event)=>{keys[event.key.toLowerCase()]=false;});
 function bindHold(id,key) {
   const el=$(id); if(!el)return;
   el.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;el.setPointerCapture?.(e.pointerId);});
-  for(const name of ['pointerup','pointercancel','lostpointercapture','pointerleave']) el.addEventListener(name,()=>{keys[key]=false;});
+  for(const name of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(name,()=>{keys[key]=false;});
 }
 bindHold('left','left'); bindHold('right','right'); bindHold('brake','brake');
 const extraControls=document.createElement('div');extraControls.className='touch-extra';$('touch-controls').insertBefore(extraControls,$('brake'));
@@ -252,13 +253,13 @@ function start() {
   state.mode='playing';state.lane=2;state.speed=0;state.time=90;state.deliveries=0;state.cash=0;state.distance=0;state.spawn=.6;state.hitCooldown=0;state.boost=100;
   player.position.set(0,0,3.4);
   $('intro').hidden=true;$('result').hidden=true;$('hud').hidden=false;$('mission').hidden=false;$('touch-controls').hidden=false;$('bottom-hint').hidden=true;
-  $('pause-game').hidden=false;$('game-modal').hidden=true;
+  $('pause-game').hidden=false;$('live-stats').hidden=false;$('game-modal').hidden=true;
   $('mission').querySelector('strong').textContent='Deliver 3 parcels';
   updateHud();
 }
 $('start').onclick=start;$('again').onclick=start;
 function finish(won) {
-  state.mode='over';$('result').hidden=false;$('touch-controls').hidden=true;$('mission').hidden=true;$('pause-game').hidden=true;
+  state.mode='over';$('result').hidden=false;$('touch-controls').hidden=true;$('mission').hidden=true;$('pause-game').hidden=true;$('live-stats').hidden=true;
   $('result-title').textContent=won?'DELIVERY BOSS!':'SHIFT OVER.';
   $('result-copy').textContent=won?'Three parcels delivered. The streets are yours.':'The city got the better of you. Ready for another run?';
   $('result-score').textContent='₹'+state.cash;
@@ -354,8 +355,11 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 addEventListener('resize',()=>{
+  isMobile = mobileQuery.matches;
   camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,isMobile?1.25:1.6));
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.mode==='playing')pause();});
+// Keep held controls from sticking if the browser interrupts a touch or keyboard session.
+addEventListener('blur',()=>{for(const key of Object.keys(keys))keys[key]=false;});

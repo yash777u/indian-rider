@@ -40,6 +40,10 @@ function cylinder(out,x,y,z,r,h,color,segments=12,axis='y') {
       lo1=[x-h/2,y+Math.cos(a)*r,z+Math.sin(a)*r]; lo2=[x-h/2,y+Math.cos(b)*r,z+Math.sin(b)*r];
       hi1=[x+h/2,y+Math.cos(a)*r,z+Math.sin(a)*r]; hi2=[x+h/2,y+Math.cos(b)*r,z+Math.sin(b)*r];
       p1=[x-h/2,y,z];p2=[x+h/2,y,z];
+    } else if(axis==='z'){
+      lo1=[x+Math.cos(a)*r,y+Math.sin(a)*r,z-h/2]; lo2=[x+Math.cos(b)*r,y+Math.sin(b)*r,z-h/2];
+      hi1=[x+Math.cos(a)*r,y+Math.sin(a)*r,z+h/2]; hi2=[x+Math.cos(b)*r,y+Math.sin(b)*r,z+h/2];
+      p1=[x,y,z-h/2];p2=[x,y,z+h/2];
     } else {
       lo1=[x+Math.cos(a)*r,y-h/2,z+Math.sin(a)*r]; lo2=[x+Math.cos(b)*r,y-h/2,z+Math.sin(b)*r];
       hi1=[x+Math.cos(a)*r,y+h/2,z+Math.sin(a)*r]; hi2=[x+Math.cos(b)*r,y+h/2,z+Math.sin(b)*r];

@@ -5,7 +5,8 @@ All models in this catalogue are original geometry authored for Indian Rider. Th
 ## Format and pipeline
 
 - **Format:** binary glTF 2.0 (`.glb`), loaded with Three.js `GLTFLoader`
-- **Materials:** glTF PBR metallic-roughness material and per-vertex colour
+- **Materials:** glTF PBR metallic-roughness material and per-vertex colour; no external texture dependencies
+- **Current fidelity:** original stylised low-poly geometry, not photorealistic 4K textured assets yet. A higher-fidelity art pass would add sculpted details, UV unwrapping, baked albedo/normal/roughness/AO maps and LODs in Blender.
 - **Coordinate system:** Y up; scooter front points toward -Z
 - **Runtime:** local same-origin files under `/models/original/`; no third-party asset CDN
 - **Fallback:** the current procedural city and scooter remain available if a GLB cannot be loaded
@@ -39,6 +40,7 @@ All models in this catalogue are original geometry authored for Indian Rider. Th
 ## Original hero vehicle
 
 - `rider125_scooter.glb` — custom orange/black Rider 125 scooter.
+- `manifest.json` — generated asset inventory and format metadata.
 - Separate named meshes: frame/floorboard, front apron/cowl, seat, handlebar, mirrors, front and rear wheels, suspension, mudguard, exhaust, tail/number plate, side panels, trim and brake details.
 - Front and rear wheels have dedicated pivot nodes for animation in Three.js.
 

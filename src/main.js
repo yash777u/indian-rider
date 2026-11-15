@@ -65,6 +65,21 @@ for (let z=-215; z<22; z+=9) {
 }
 const cityChunks = [];
 const facadeMats = [mat(0xc28d67), mat(0xd5c6a4), mat(0x9cae9c), mat(0xb7a58d), mat(0x879a9b), mat(0xd1b87d)];
+const shopNames = ['CHAI POINT','PUNJABI DHABA','DESI SWEETS','MEDICAL','MOBILE REPAIR','TANDOOR'];
+const shopSignMats = shopNames.map((label, index) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 128;
+  const context = canvas.getContext('2d');
+  const colors = ['#a8432e','#1f654f','#b17a25','#386b83','#713f62','#8c4c2d'];
+  context.fillStyle = colors[index]; context.fillRect(0,0,512,128);
+  context.strokeStyle = '#f2d58d'; context.lineWidth = 9; context.strokeRect(7,7,498,114);
+  context.fillStyle = '#fff4d7'; context.font = 'bold 48px Arial, sans-serif';
+  context.textAlign = 'center'; context.textBaseline = 'middle';
+  context.fillText(label,256,66,470);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshBasicMaterial({ map:texture, side:THREE.DoubleSide, toneMapped:false });
+});
 function makeChunk(z) {
   const group = new THREE.Group();
   for (const side of [-1, 1]) {
@@ -84,6 +99,9 @@ function makeChunk(z) {
     }
     if (Math.random() > .35) {
       box(building, width*.72, .9, .12, M.sign, 0, 2.1, depth/2+.12);
+      const shopFace = new THREE.Mesh(new THREE.PlaneGeometry(width*.68,.72), shopSignMats[Math.floor(Math.random()*shopSignMats.length)]);
+      shopFace.position.set(0,2.1,depth/2+.19);
+      building.add(shopFace);
       box(building, width*.45, .09, .14, M.gold, 0, 2.2, depth/2+.2);
     }
     building.position.set(x, 0, 0);

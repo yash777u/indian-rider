@@ -211,10 +211,49 @@ function createScooter() {
   }
   box(fallbackVehicle, 1.0, .07, .08, M.black, 0, 1.58, .4);
   box(fallbackVehicle, .12, .45, .12, M.black, 0, 1.32, .4);
+  // Sport-bike rider: seated hips, forward-leaning jacket, bent knees and hands on the bars.
   const rider = new THREE.Group();
-  box(rider, .38, .65, .34, M.blue, 0, 1.72, -.08).rotation.x = -.18;
-  sphere(rider, .23, M.skin, 0, 2.17, -.12);
-  sphere(rider, .25, M.red, 0, 2.29, -.13, 1.06, .72, 1.04);
+  const jacket = mat(0x182b3c, .72);
+  const pants = mat(0x252a30, .86);
+  const gloves = mat(0x171a1d, .72);
+  const helmet = mat(0x075a9a, .24, { metalness:.42 });
+  const visor = mat(0x152d3a, .16, { metalness:.55 });
+  const skinTone = M.skin;
+  const limb = (parent, from, to, radius, material, radial=9) => {
+    const a = new THREE.Vector3(...from), b = new THREE.Vector3(...to);
+    const direction = new THREE.Vector3().subVectors(b,a);
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius*.82,radius,direction.length(),radial),material);
+    mesh.position.copy(a).add(b).multiplyScalar(.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+    parent.add(mesh); return mesh;
+  };
+  // Hips sit on the saddle; torso leans forward into a natural riding posture.
+  box(rider,.4,.28,.4,pants,0,1.76,.54);
+  const torso = box(rider,.48,.64,.34,jacket,0,1.99,.12);
+  torso.rotation.x=-.34;
+  sphere(rider,.16,skinTone,0,2.25,-.12);
+  // Full-face helmet with chin section and dark visor.
+  sphere(rider,.29,helmet,0,2.48,-.2,1,1.02,1.02);
+  sphere(rider,.235,visor,0,2.49,-.455,1,.62,.13);
+  box(rider,.24,.075, .12,helmet,0,2.31,-.38).rotation.x=-.12;
+  // Arms reach forward to the clip-on handlebars; gloves sit at the grips.
+  for(const side of [-1,1]){
+    const shoulder=[side*.23,2.13,-.02];
+    const elbow=[side*.34,1.99,-.39];
+    const wrist=[side*.39,2.03,-.72];
+    limb(rider,shoulder,elbow,.105,jacket);
+    limb(rider,elbow,wrist,.082,jacket);
+    sphere(rider,.09,gloves,...wrist);
+    // Bent thighs and lower legs tuck around the tank and onto the pegs.
+    const hip=[side*.17,1.76,.54];
+    const knee=[side*.38,1.35,.22];
+    const ankle=[side*.42,.77,.45];
+    limb(rider,hip,knee,.13,pants);
+    limb(rider,knee,ankle,.095,pants);
+    box(rider,.16,.12,.28,gloves,side*.42,.72,.36).rotation.x=-.12;
+    // Knee pads and jacket shoulder panels.
+    sphere(rider,.135,gloves,...[side*.38,1.36,.22],1,.8,.75);
+  }
   root.add(rider);
   root.userData.fallbackVehicle = fallbackVehicle;
   root.userData.wheels = [];

@@ -295,4 +295,202 @@ function makeScooter(){
   return parts;
 }
 writeGlb('rider125_scooter.glb',makeScooter(),{assetType:'vehicle',original:true,design:'Rider 125',parts:'named meshes for animation',frontDirection:'-Z',upAxis:'Y'});
+
+// Original blue sport-bike for Indian Rider. Front points toward -Z; wheel pivots are separate nodes.
+function makeR15SportBike(){
+  const parts=[];
+  const add=(name,fn,pivot=[0,0,0])=>{
+    const o={name,p:[],n:[],c:[]}; fn(o);
+    for(let i=0;i<o.p.length;i+=3){o.p[i]-=pivot[0];o.p[i+1]-=pivot[1];o.p[i+2]-=pivot[2];}
+    o.translation=pivot;parts.push(o);
+  };
+  const B=(o,x,y,z,w,h,d,c)=>box(o,x,y,z,w,h,d,c);
+  const CY=(o,x,y,z,r,h,c,seg=16,axis='y')=>cylinder(o,x,y,z,r,h,c,seg,axis);
+  const SP=(o,x,y,z,rx,ry,rz,c)=>sphere(o,x,y,z,rx,ry,rz,c,16,10);
+
+  // Main chassis, subframe, engine and swingarm.
+  add('01 Trellis frame and subframe',o=>{
+    for(const side of [-1,1]){
+      CY(o,side*.27,1.0,0,.065,1.35,C.steel,10,'z');
+      CY(o,side*.27,1.0,.52,.055,.92,C.steel,10,'z');
+      CY(o,side*.27,1.28,.3,.05,.88,C.steel,10,'z');
+      CY(o,side*.27,1.05,.72,.045,.72,C.charcoal,10,'z');
+    }
+    B(o,0,.72,.08,.72,.16,1.15,C.charcoal);
+    B(o,0,1.2,.72,.55,.12,.75,C.steel);
+  });
+  add('02 Engine block and crankcase',o=>{
+    SP(o,0,.91,.12,.42,.48,.48,C.charcoal);
+    CY(o,0,1.02,-.12,.29,.48,C.steel,16,'z');
+    SP(o,0,1.05,-.34,.3,.31,.19,C.dark);
+    B(o,0,1.38,-.08,.48,.12,.34,C.steel);
+    for(let i=0;i<5;i++) B(o,0,1.42+i*.055,-.24,.42,.025,.3,C.charcoal);
+    CY(o,.36,.93,.08,.09,.25,C.gold,12,'x');
+  });
+  add('03 Rear swingarm',o=>{
+    for(const side of [-1,1]){
+      CY(o,side*.18,.54,.75,.065,1.02,C.steel,10,'z');
+      CY(o,side*.18,.54,.75,.04,.95,C.charcoal,10,'z');
+    }
+    B(o,0,.53,.75,.48,.12,.16,C.steel);
+  });
+
+  // Wheels have their own origins so Three.js can animate their rotation.
+  add('04 Rear wheel rotating pivot',o=>{
+    CY(o,0,0,0,.49,.23,C.black,32,'x');
+    CY(o,0,0,0,.38,.245,C.steel,32,'x');
+    CY(o,0,0,0,.29,.26,C.charcoal,24,'x');
+    CY(o,0,0,0,.095,.28,C.gold,16,'x');
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI*2/10;
+      CY(o,0,Math.cos(a)*.235,Math.sin(a)*.235,.025,.19,C.steel,8,'x');
+    }
+    CY(o,0,0,0,.27,.012,C.gold,32,'x');
+    for(let i=0;i<36;i++){
+      const a=i*Math.PI*2/36;
+      CY(o,0,Math.cos(a)*.325,Math.sin(a)*.325,.012,.014,C.steel,6,'x');
+    }
+  },[0,.49,.83]);
+  add('05 Front wheel rotating pivot',o=>{
+    CY(o,0,0,0,.49,.23,C.black,32,'x');
+    CY(o,0,0,0,.38,.245,C.steel,32,'x');
+    CY(o,0,0,0,.29,.26,C.charcoal,24,'x');
+    CY(o,0,0,0,.095,.28,C.gold,16,'x');
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI*2/10;
+      CY(o,0,Math.cos(a)*.235,Math.sin(a)*.235,.025,.19,C.steel,8,'x');
+    }
+    CY(o,0,0,0,.27,.012,C.gold,32,'x');
+    for(let i=0;i<36;i++){
+      const a=i*Math.PI*2/36;
+      CY(o,0,Math.cos(a)*.325,Math.sin(a)*.325,.012,.014,C.steel,6,'x');
+    }
+  },[0,.49,-1.02]);
+
+  // Blue bodywork, tank and aggressive sport-bike silhouette.
+  add('06 Fuel tank sculpted blue',o=>{
+    SP(o,0,1.78,.03,.47,.43,.66,C.blue);
+    SP(o,0,1.91,-.04,.4,.27,.53,C.sky);
+    CY(o,0,2.18,.02,.16,.035,C.steel,20,'y');
+    CY(o,0,2.205,.02,.105,.018,C.black,20,'y');
+  });
+  add('07 Left blue side fairing',o=>{
+    SP(o,-.39,1.16,-.35,.2,.48,.68,C.blue);
+    SP(o,-.48,1.27,-.52,.12,.32,.45,C.sky);
+    B(o,-.49,.94,-.48,.045,.12,.62,C.charcoal);
+    B(o,-.48,1.42,-.7,.035,.08,.26,C.white);
+    B(o,-.46,1.05,-.05,.04,.08,.32,C.gold);
+  });
+  add('08 Right blue side fairing',o=>{
+    SP(o,.39,1.16,-.35,.2,.48,.68,C.blue);
+    SP(o,.48,1.27,-.52,.12,.32,.45,C.sky);
+    B(o,.49,.94,-.48,.045,.12,.62,C.charcoal);
+    B(o,.48,1.42,-.7,.035,.08,.26,C.white);
+    B(o,.46,1.05,-.05,.04,.08,.32,C.gold);
+  });
+  add('09 Lower belly pan',o=>{
+    SP(o,0,.75,-.18,.43,.17,.62,C.charcoal);
+    B(o,0,.65,-.32,.72,.12,.58,C.black);
+    B(o,0,.72,-.62,.62,.08,.18,C.blue);
+  });
+  add('10 Tail cowl and rear seat',o=>{
+    SP(o,0,1.66,.91,.34,.25,.56,C.blue);
+    SP(o,0,1.79,1.02,.27,.16,.39,C.sky);
+    SP(o,0,1.58,.47,.34,.13,.45,C.charcoal);
+    SP(o,0,1.72,1.26,.2,.11,.23,C.red);
+    B(o,0,.96,1.23,.36,.24,.08,C.charcoal);
+  });
+  add('11 Rider seat',o=>{
+    SP(o,0,1.78,.55,.31,.12,.52,C.black);
+    SP(o,0,1.82,.42,.28,.07,.38,C.charcoal);
+  });
+  add('12 Windscreen and front cowl',o=>{
+    SP(o,0,2.0,-.86,.43,.32,.29,C.blue);
+    SP(o,0,2.18,-.99,.31,.28,.17,C.glass);
+    B(o,0,2.02,-1.1,.58,.1,.13,C.charcoal);
+    SP(o,-.19,1.9,-1.06,.17,.11,.06,C.white);
+    SP(o,.19,1.9,-1.06,.17,.11,.06,C.white);
+    B(o,-.2,1.78,-1.1,.12,.045,.05,C.gold);
+    B(o,.2,1.78,-1.1,.12,.045,.05,C.gold);
+  });
+  add('13 Front fender',o=>{
+    SP(o,0,1.0,-1.05,.34,.1,.52,C.blue);
+    B(o,0,1.04,-1.05,.5,.06,.62,C.sky);
+  });
+  add('14 Front fork and gold USD tubes',o=>{
+    for(const side of [-1,1]){
+      CY(o,side*.22,1.0,-.94,.07,.92,C.gold,14,'z');
+      CY(o,side*.22,.94,-.94,.045,.92,C.steel,12,'z');
+      CY(o,side*.22,1.38,-.83,.09,.16,C.charcoal,12,'z');
+    }
+    B(o,0,1.44,-.72,.55,.12,.16,C.steel);
+  });
+  add('15 Rear monoshock and linkage',o=>{
+    CY(o,.12,.91,.54,.075,.65,C.gold,12,'z');
+    CY(o,.12,.91,.54,.12,.13,C.steel,12,'z');
+    for(let i=0;i<8;i++) CY(o,.12,.91,.54-i*.045,.105,.018,C.gold,12,'z');
+  });
+  add('16 Front and rear brake discs',o=>{
+    for(const z of [-1.02,.83]){
+      CY(o,-.145,.49,z,.29,.025,C.steel,32,'x');
+      CY(o,-.145,.49,z,.21,.03,C.charcoal,24,'x');
+      for(let i=0;i<20;i++){
+        const a=i*Math.PI*2/20;
+        CY(o,-.16,.49+Math.cos(a)*.25,z+Math.sin(a)*.25,.012,.03,C.gold,6,'x');
+      }
+    }
+    CY(o,.15,.49,-1.02,.25,.025,C.steel,28,'x');
+  });
+  add('17 Exhaust header and muffler',o=>{
+    CY(o,.24,.75,-.15,.075,.65,C.steel,12,'z');
+    CY(o,.31,.63,.43,.11,.58,C.steel,12,'z');
+    CY(o,.39,.69,.78,.14,.76,C.charcoal,16,'z');
+    CY(o,.39,.69,1.17,.12,.06,C.steel,16,'z');
+    CY(o,.39,.69,1.205,.075,.025,C.black,16,'z');
+  });
+  add('18 Handlebar controls and mirrors',o=>{
+    CY(o,0,2.02,-.78,.055,.82,C.steel,14,'x');
+    for(const side of [-1,1]){
+      CY(o,side*.48,2.02,-.78,.065,.28,C.black,12,'x');
+      CY(o,side*.34,2.04,-.78,.08,.14,C.steel,12,'x');
+      CY(o,side*.28,2.27,-.83,.025,.34,C.steel,10,'z');
+      SP(o,side*.28,2.45,-.83,.16,.09,.08,C.black);
+      SP(o,side*.28,2.45,-.87,.12,.06,.025,C.glass);
+    }
+    B(o,0,2.03,-.8,.32,.14,.18,C.charcoal);
+  });
+  add('19 Chain sprocket and chain',o=>{
+    CY(o,.22,.52,.83,.19,.06,C.gold,24,'x');
+    for(let i=0;i<30;i++){
+      const a=i*Math.PI*2/30;
+      CY(o,.22,.52+Math.cos(a)*.2,.83+Math.sin(a)*.2,.018,.07,C.steel,6,'x');
+    }
+    for(let i=0;i<18;i++) B(o,.23,.48+i*.004,.25+i*.033,.045,.045,.04,C.steel);
+  });
+  add('20 Foot pegs, levers and side stand',o=>{
+    for(const side of [-1,1]){
+      CY(o,side*.48,.65,.22,.055,.3,C.steel,10,'x');
+      B(o,side*.48,.63,.22,.24,.06,.12,C.black);
+    }
+    CY(o,.26,.36,.38,.035,.48,C.steel,10,'z');
+  });
+  add('21 Rear LED tail and indicators',o=>{
+    SP(o,0,1.73,1.48,.22,.12,.07,C.red);
+    for(const side of [-1,1]) CY(o,side*.32,1.34,1.32,.055,.12,C.orange,12,'x');
+  });
+  add('22 Number plate and rear mudguard',o=>{
+    B(o,0,.8,1.43,.34,.24,.035,C.white);
+    B(o,0,.8,1.46,.24,.035,.02,C.charcoal);
+    B(o,0,.58,1.31,.28,.34,.06,C.black);
+  });
+  return parts;
+}
+writeGlb('r15_sport_bike.glb',makeR15SportBike(),{
+  assetType:'vehicle',original:true,design:'R15-inspired blue sport motorcycle',
+  note:'Original stylised game mesh, not a manufacturer CAD replica',
+  frontDirection:'-Z',upAxis:'Y',
+  animatedParts:['04 Rear wheel rotating pivot','05 Front wheel rotating pivot'],
+  components:'22 separately named mesh groups'
+});
+
 console.log('Generated',buildingDefs.length,'original buildings and one custom scooter in',outDir);

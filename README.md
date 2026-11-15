@@ -3,7 +3,7 @@
 A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride through traffic, avoid autos, buses and cows, collect parcels and earn rupees.
 
 ## Current gameplay
-- Procedurally assembled repeating Indian city street with buildings, shop signs, trees and streetlights
+- Procedurally assembled repeating Indian city street with named storefronts (chai, dhaba, sweets, medical and repair), trees and streetlights
 - Third-person scooter and rider model with lean, suspension bob and rotating wheels
 - Moving traffic: cars, auto-rickshaws, buses and cows
 - Sidewalk pedestrians, rain particles and scrolling road markings
@@ -43,14 +43,14 @@ npm run preview
 - CSS
 
 ## Known scope limits
-This is a compact arcade city-driving slice, not a full GTA-scale open world. The city corridor repeats procedurally; current pedestrians and traffic use lightweight scripted movement rather than advanced AI or physics simulation. There is no online multiplayer, save system, or persistent economy yet.
+This is a compact arcade city-driving slice, not a full GTA-scale open world. The city corridor repeats procedurally; current pedestrians and traffic use lightweight scripted movement rather than advanced AI or physics simulation. There is no online multiplayer, cloud save, or persistent cross-device economy yet. The personal-best score is stored only in the current browser.
 
 ## Next upgrades
 - Distinct neighbourhoods and route selection
 - Better vehicle models, traffic behaviours and pedestrian animations
 - Scooter garage, upgrades and progression
 - Mission variety, police chase and day/night cycle
-- Sound design, haptics and accessibility settings
+- Richer recorded sound design, haptics and accessibility settings
 - Persistent local/cloud saves and leaderboards
 
 ## Assets

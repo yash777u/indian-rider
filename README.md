@@ -3,9 +3,9 @@
 A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride through traffic, avoid autos, buses and cows, collect parcels and earn rupees.
 
 ## Current gameplay
-- Procedurally assembled repeating Indian city street with named storefronts (chai, dhaba, sweets, medical and repair), trees and streetlights
+- Repeating Indian-inspired city street with named storefronts, plus imported low-poly GLB shops, market buildings, traffic lights, bus stops and palm trees
 - Third-person scooter and rider model with lean, suspension bob and rotating wheels
-- Moving traffic: cars, auto-rickshaws, buses and cows
+- Moving traffic: imported low-poly cars and buses (with procedural fallbacks), plus auto-rickshaws and cows
 - Sidewalk pedestrians, rain particles and scrolling road markings
 - Three parcel pickups, countdown timer, cash rewards and collision penalties
 - Pause/resume, minimap, nitro meter, synthesised sound effects and game-over/restart flow
@@ -53,8 +53,12 @@ This is a compact arcade city-driving slice, not a full GTA-scale open world. Th
 - Richer recorded sound design, haptics and accessibility settings
 - Persistent local/cloud saves and leaderboards
 
-## Assets
-Initial 3D environment and vehicles are generated procedurally in code. No paid assets or API keys are required.
+## Free 3D assets
+- Integrated CC0 GLB models from the [Low Poly City Kit by kayquer](https://github.com/kayquer/kit-cidade-lowpoly): corner shop, market, car, bus, traffic light, bus stop and buriti palm
+- The kit contains 129 low-poly models, each up to 1,500 triangles; commercial use and modification are allowed under CC0 1.0, with attribution optional
+- Models are loaded from jsDelivr at runtime to keep the Git repository and initial download lightweight; procedural geometry remains as a fallback if the CDN is unavailable
+- Asset source and licence notes are documented in [ASSET_SOURCES.md](ASSET_SOURCES.md)
+- No paid assets or API keys are required
 
 ## License
 MIT

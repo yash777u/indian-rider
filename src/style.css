@@ -38,3 +38,11 @@
 @media (hover:none), (pointer:coarse){.controls-hint{display:none}.mobile-note{display:block}}
 @media(max-width:420px){.hud{top:76px}.hud-card{padding:8px 7px}.hud-card strong{font-size:20px}.hud-card small{font-size:6px;letter-spacing:.7px}.mission{top:139px;left:14px;right:auto;max-width:calc(100vw - 112px)}.mission strong{font-size:10px}.minimap-wrap{top:139px}.game-stats{bottom:calc(12px + env(safe-area-inset-bottom));max-width:calc(100vw - 28px)}.touch-controls{bottom:calc(15px + env(safe-area-inset-bottom))}}
 @media(max-height:520px) and (orientation:landscape){.intro{top:18%;left:7vw}.intro h1{font-size:clamp(54px,12vh,82px);margin:14px 0}.intro p{font-size:11px;margin-bottom:14px}.intro .start-btn{padding:12px 16px}.hud{top:70px}.mission{top:70px}.minimap-wrap{top:126px;width:70px;height:70px}.touch-controls{bottom:10px}.game-stats{bottom:10px}}
+
+
+/* Game-feel pass: tactile swipe affordance, sound toggle and best-run feedback. */
+canvas{touch-action:none}
+.sound-game{position:absolute;right:calc(4.5vw + 104px);top:24px;pointer-events:auto;border:1px solid rgba(230,220,190,.42);background:rgba(10,18,18,.58);color:#f5f0e5;padding:9px 12px;font-size:9px;letter-spacing:1.2px;cursor:pointer}
+.best-shift{margin-top:16px;color:#e8bd62;font-size:9px;font-weight:800;letter-spacing:2px}
+@media(max-width:700px){.sound-game{top:15px;right:105px;padding:8px 9px;font-size:8px}.best-shift{font-size:8px;margin-top:13px}}
+@media(max-width:380px){.sound-game{right:99px;padding:7px 7px;font-size:7px}.pause-game{padding:7px 8px;font-size:8px}}

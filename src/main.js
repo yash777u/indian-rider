@@ -206,12 +206,70 @@ rainGeometry.setAttribute('position',new THREE.BufferAttribute(rainPositions,3))
 const rain = new THREE.Points(rainGeometry,new THREE.PointsMaterial({color:0xdce8ed,size:.055,transparent:true,opacity:.52}));
 scene.add(rain);
 
-const state = {mode:'menu',lane:2,speed:0,time:90,deliveries:0,cash:0,distance:0,spawn:1,hitCooldown:0,boost:100,toast:0};
+const state = {mode:'menu',lane:2,speed:0,time:90,deliveries:0,cash:0,distance:0,spawn:1,hitCooldown:0,boost:100,toast:0,nitroWasActive:false,shake:0};
+let bestScore = 0;
+let soundEnabled = true;
+let audioContext = null;
+try {
+  bestScore = Number(localStorage.getItem('indianRiderBest') || 0);
+  soundEnabled = localStorage.getItem('indianRiderSound') !== 'off';
+} catch {}
+const bestBadge = document.createElement('div');
+bestBadge.className = 'best-shift';
+bestBadge.id = 'best-shift';
+bestBadge.textContent = 'PERSONAL BEST  ₹' + bestScore;
+ui.intro.appendChild(bestBadge);
 const keys = {};
 const dynamic = document.createElement('div');
 dynamic.className='game-dynamic';
-dynamic.innerHTML = '<button class="pause-game" id="pause-game" aria-label="Pause game" hidden>Ⅱ PAUSE</button><div class="game-stats" id="live-stats" hidden><span id="speed-stat">SPEED 0 KM/H</span><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
+dynamic.innerHTML = '<button class="sound-game" id="sound-game" aria-label="Toggle sound">♫ SOUND ON</button><button class="pause-game" id="pause-game" aria-label="Pause game" hidden>Ⅱ PAUSE</button><div class="game-stats" id="live-stats" hidden><span id="speed-stat">SPEED 0 KM/H</span><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
 document.getElementById('app').appendChild(dynamic);
+function initAudio() {
+  if (!soundEnabled) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!audioContext) audioContext = new AudioContextClass();
+    if (audioContext.state === 'suspended') audioContext.resume();
+  } catch {}
+}
+function playSfx(kind) {
+  if (!soundEnabled || !audioContext) return;
+  const patterns = {
+    start: [440, 660],
+    pickup: [660, 880, 1175],
+    crash: [180, 110],
+    boost: [260, 520],
+    finish: [523, 659, 784, 1047]
+  };
+  const notes = patterns[kind] || [];
+  const now = audioContext.currentTime;
+  notes.forEach((frequency, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const startAt = now + index * (kind === 'finish' ? .11 : .075);
+    const duration = kind === 'crash' ? .16 : .12;
+    oscillator.type = kind === 'crash' ? 'sawtooth' : 'sine';
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    gain.gain.setValueAtTime(.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(kind === 'crash' ? .045 : .035, startAt + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, startAt + duration);
+    oscillator.connect(gain); gain.connect(audioContext.destination);
+    oscillator.start(startAt); oscillator.stop(startAt + duration + .02);
+  });
+}
+const soundButton = $('sound-game');
+function updateSoundButton() {
+  soundButton.textContent = soundEnabled ? '♫ SOUND ON' : '♫ SOUND OFF';
+  soundButton.setAttribute('aria-pressed', String(soundEnabled));
+}
+soundButton.onclick = () => {
+  soundEnabled = !soundEnabled;
+  try { localStorage.setItem('indianRiderSound', soundEnabled ? 'on' : 'off'); } catch {}
+  if (soundEnabled) { initAudio(); playSfx('start'); }
+  updateSoundButton();
+};
+updateSoundButton();
 const toast = (message) => { $('game-toast').textContent=message; $('game-toast').classList.add('show'); state.toast=1.25; };
 function updateHud() {
   $('timer').textContent=Math.max(0,state.time).toFixed(1);
@@ -249,29 +307,57 @@ function clearTraffic() {
   if(pickup){scene.remove(pickup);pickup=null;}
 }
 function start() {
+  initAudio();
   clearTraffic();
-  state.mode='playing';state.lane=2;state.speed=0;state.time=90;state.deliveries=0;state.cash=0;state.distance=0;state.spawn=.6;state.hitCooldown=0;state.boost=100;
+  state.mode='playing';state.lane=2;state.speed=0;state.time=90;state.deliveries=0;state.cash=0;state.distance=0;state.spawn=.6;state.hitCooldown=0;state.boost=100;state.nitroWasActive=false;state.shake=0;
   player.position.set(0,0,3.4);
   $('intro').hidden=true;$('result').hidden=true;$('hud').hidden=false;$('mission').hidden=false;$('touch-controls').hidden=false;$('bottom-hint').hidden=true;
   $('pause-game').hidden=false;$('live-stats').hidden=false;$('game-modal').hidden=true;
   $('mission').querySelector('strong').textContent='Deliver 3 parcels';
+  bestBadge.textContent = 'PERSONAL BEST  ₹' + bestScore;
+  playSfx('start');
   updateHud();
 }
 $('start').onclick=start;$('again').onclick=start;
 function finish(won) {
-  state.mode='over';$('result').hidden=false;$('touch-controls').hidden=true;$('mission').hidden=true;$('pause-game').hidden=true;$('live-stats').hidden=true;
+  state.mode='over';
+  if (state.cash > bestScore) {
+    bestScore = state.cash;
+    try { localStorage.setItem('indianRiderBest', String(bestScore)); } catch {}
+  }
+  bestBadge.textContent = 'PERSONAL BEST  ₹' + bestScore;
+  playSfx(won ? 'finish' : 'crash');$('result').hidden=false;$('touch-controls').hidden=true;$('mission').hidden=true;$('pause-game').hidden=true;$('live-stats').hidden=true;
   $('result-title').textContent=won?'DELIVERY BOSS!':'SHIFT OVER.';
   $('result-copy').textContent=won?'Three parcels delivered. The streets are yours.':'The city got the better of you. Ready for another run?';
   $('result-score').textContent='₹'+state.cash;
+  $('result-copy').textContent += '  Personal best: ₹' + bestScore + '.';
 }
 function crash() {
   if(state.hitCooldown>0)return;
-  state.hitCooldown=1.35;state.time=Math.max(0,state.time-3.5);state.cash=Math.max(0,state.cash-25);state.speed*=.48;
+  state.hitCooldown=1.35;state.time=Math.max(0,state.time-3.5);state.cash=Math.max(0,state.cash-25);state.speed*=.48;state.shake=.28;
+  playSfx('crash');
+  if (navigator.vibrate) navigator.vibrate(70);
   toast('TRAFFIC HIT  •  -3.5 SEC'); updateHud();
 }
 function steer(direction) { state.lane=THREE.MathUtils.clamp(state.lane+direction,0,4); }
+let swipeStart = null;
+renderer.domElement.addEventListener('pointerdown', event => {
+  if (event.pointerType === 'touch' && state.mode === 'playing') swipeStart = { x: event.clientX, y: event.clientY };
+});
+renderer.domElement.addEventListener('pointerup', event => {
+  if (!swipeStart) return;
+  const dx = event.clientX - swipeStart.x;
+  const dy = event.clientY - swipeStart.y;
+  if (Math.abs(dx) > 34 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+    const steps = Math.min(2, Math.max(1, Math.round(Math.abs(dx) / 105)));
+    for (let i = 0; i < steps; i++) steer(dx < 0 ? -1 : 1);
+  }
+  swipeStart = null;
+});
+renderer.domElement.addEventListener('pointercancel', () => { swipeStart = null; });
 function collectPickup() {
   state.deliveries++;state.cash+=150;state.time=Math.min(99,state.time+6);state.boost=Math.min(100,state.boost+22);
+  playSfx('pickup');
   scene.remove(pickup);pickup=null;toast('PARCEL DELIVERED  •  +₹150');
   $('mission').querySelector('strong').textContent=state.deliveries>=3?'All parcels delivered!':'Parcel '+(state.deliveries+1)+' of 3';
   updateHud();if(state.deliveries>=3)finish(true);
@@ -287,6 +373,8 @@ function update(dt,now) {
   const braking=keys.brake||keys.s||keys.arrowdown;
   const accelerating=keys.accelerate||keys.w||keys.arrowup||keys[' '];
   const nitroActive=keys.shift&&state.boost>0&&!braking;
+  if (nitroActive && !state.nitroWasActive) playSfx('boost');
+  state.nitroWasActive = nitroActive;
   if(nitroActive){state.speed=THREE.MathUtils.damp(state.speed,36,2.8,dt);state.boost=Math.max(0,state.boost-24*dt);}
   else state.speed=THREE.MathUtils.damp(state.speed,braking?7:accelerating?26:18,braking?5:2.2,dt);
   if(!nitroActive)state.boost=Math.min(100,state.boost+7*dt);
@@ -330,6 +418,8 @@ function update(dt,now) {
   state.hitCooldown=Math.max(0,state.hitCooldown-dt);
   if(state.toast>0){state.toast-=dt;if(state.toast<=0)$('game-toast').classList.remove('show');}
   camera.position.x=THREE.MathUtils.damp(camera.position.x,player.position.x*.38,3.2,dt);
+  state.shake=Math.max(0,state.shake-dt);
+  if(state.shake>0) camera.position.x += Math.sin(now*.075)*state.shake*.7;
   camera.position.y=THREE.MathUtils.damp(camera.position.y,6.0+(state.speed/34)*.65,2,dt);
   camera.lookAt(player.position.x*.32,1.1,-7.5);
   if(state.distance>1500)state.distance=0;
@@ -362,4 +452,4 @@ addEventListener('resize',()=>{
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.mode==='playing')pause();});
 // Keep held controls from sticking if the browser interrupts a touch or keyboard session.
-addEventListener('blur',()=>{for(const key of Object.keys(keys))keys[key]=false;});
+addEventListener('blur',()=>{for(const key of Object.keys(keys))keys[key]=false;if(state.mode==='playing')pause();});

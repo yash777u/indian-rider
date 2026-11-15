@@ -8,7 +8,9 @@ A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride 
 - Moving traffic: cars, auto-rickshaws, buses and cows
 - Sidewalk pedestrians, rain particles and scrolling road markings
 - Three parcel pickups, countdown timer, cash rewards and collision penalties
-- Pause/resume, minimap, nitro meter and game-over/restart flow
+- Pause/resume, minimap, nitro meter, synthesised sound effects and game-over/restart flow
+- Swipe-to-steer on touch screens, keyboard support and optional vibration feedback
+- Personal-best score saved locally on the player's device
 - Keyboard and touch controls
 - Reduced pixel ratio, no real-time shadows and low-poly procedural geometry for mobile performance
 
@@ -18,7 +20,9 @@ A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride 
 - **S / ↓ / Brake** — brake
 - **Shift / N₂O** — nitro boost
 - **P / Esc / Pause** — pause or resume
-- **Mobile** — on-screen steer, GO, brake and N₂O controls
+- **Mobile** — on-screen steer, GO, brake and N₂O controls; swipe left/right on the road to change lanes
+- **Sound** — toggle the synthesised sound effects from the top-right control
+- Personal best is stored locally in the browser; it is not shared across devices
 
 ## Run locally
 ```bash

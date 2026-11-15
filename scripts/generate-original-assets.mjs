@@ -500,4 +500,12 @@ writeGlb('r15_sport_bike.glb',makeR15SportBike(),{
   components:'22 separately named mesh groups'
 });
 
+const manifest = {
+  format: 'glTF 2.0 binary (.glb)',
+  generator: 'Indian Rider Original Asset Forge',
+  buildings: buildingDefs.map(({id,name},index)=>({id,name,file:id+'.glb',designIndex:index+1})),
+  playerVehicle: { id:'rider125_scooter', name:'Rider 125 Original Scooter', file:'rider125_scooter.glb', namedParts:true, wheelPivots:true },
+  materialWorkflow: 'PBR metallic-roughness with per-vertex colour; no external texture dependencies'
+};
+fs.writeFileSync(path.join(outDir,'manifest.json'), JSON.stringify(manifest,null,2)+'\\n');
 console.log('Generated',buildingDefs.length,'original buildings and one custom scooter in',outDir);

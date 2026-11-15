@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { createIndianWorld } from './indian-world.js';
 import './style.css';
 
 const $ = (id) => document.getElementById(id);
@@ -25,6 +26,7 @@ renderer.toneMappingExposure = 1.15;
 ui.game.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
+const indianWorld = createIndianWorld(scene);
 scene.background = new THREE.Color(0x879d9d);
 scene.fog = new THREE.Fog(0x879d9d, 35, 155);
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 240);
@@ -262,14 +264,7 @@ function spawnTraffic() {
 }
 
 function makePedestrian(x,z) {
-  const person = new THREE.Group();
-  const shirt = [M.red,M.blue,M.green,M.gold][Math.floor(Math.random()*4)];
-  box(person,.32,.58,.22,shirt,0,1.03,0);
-  sphere(person,.17,M.skin,0,1.48,-.02);
-  for (const legX of [-.12,.12]) box(person,.1,.55,.12,M.black,legX,.35,0);
-  person.position.set(x,0,z);
-  scene.add(person);
-  return person;
+  return indianWorld.makePedestrian(x,z,pedestrians.length);
 }
 const pedestrians = [];
 for (let i=0;i<10;i++) pedestrians.push(makePedestrian(i%2?8.1:-8.1,-i*22-12));
@@ -460,6 +455,7 @@ function collectPickup() {
   updateHud();if(state.deliveries>=3)finish(true);
 }
 function update(dt,now) {
+  indianWorld.update(dt,now);
   if(state.mode!=='playing')return;
   state.time-=dt;
   if(state.time<=0){finish(state.deliveries>=3);return;}
@@ -485,6 +481,14 @@ function update(dt,now) {
   for(const mark of laneMarks){mark.position.z+=travel;if(mark.position.z>16)mark.position.z-=234;}
   for(const chunk of cityChunks){chunk.position.z+=travel;if(chunk.position.z>26)chunk.position.z-=240;}
   for(const person of pedestrians){
+    const walk=person.userData.walk;
+    if(walk){
+      const phase=now*.006+walk.phase;
+      walk.arms[0].rotation.x=Math.sin(phase)*.42;
+      walk.arms[1].rotation.x=-Math.sin(phase)*.42;
+      walk.legs[0].rotation.x=-Math.sin(phase)*.48;
+      walk.legs[1].rotation.x=Math.sin(phase)*.48;
+    }
     person.position.z+=travel*.96;
     person.position.x+=Math.sin(now*.001+person.position.z)*dt*.1;
     if(person.position.z>15)person.position.z-=220;

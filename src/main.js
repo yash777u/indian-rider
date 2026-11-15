@@ -167,7 +167,8 @@ function spawnTraffic() {
   const object = makeVehicle(type);
   object.position.set(lanes[Math.floor(Math.random()*lanes.length)],0,-118);
   scene.add(object);
-  traffic.push({object,type,speed:type==='bus'?8:type==='cow'?6:10+Math.random()*6,hit:false});
+  const difficultyBoost = state.mode === 'playing' ? state.deliveries * 1.15 : 0;
+  traffic.push({object,type,speed:(type==='bus'?8:type==='cow'?6:10+Math.random()*6)+difficultyBoost,hit:false});
 }
 
 function makePedestrian(x,z) {
@@ -211,7 +212,8 @@ let bestScore = 0;
 let soundEnabled = true;
 let audioContext = null;
 try {
-  bestScore = Number(localStorage.getItem('indianRiderBest') || 0);
+  const savedBest = Number(localStorage.getItem('indianRiderBest') || 0);
+  bestScore = Number.isFinite(savedBest) ? Math.max(0, savedBest) : 0;
   soundEnabled = localStorage.getItem('indianRiderSound') !== 'off';
 } catch {}
 const bestBadge = document.createElement('div');
@@ -314,6 +316,7 @@ function start() {
   $('intro').hidden=true;$('result').hidden=true;$('hud').hidden=false;$('mission').hidden=false;$('touch-controls').hidden=false;$('bottom-hint').hidden=true;
   $('pause-game').hidden=false;$('live-stats').hidden=false;$('game-modal').hidden=true;
   $('mission').querySelector('strong').textContent='Deliver 3 parcels';
+  $('result-copy').textContent='The city has tested you. Ready for another run?';
   bestBadge.textContent = 'PERSONAL BEST  ₹' + bestScore;
   playSfx('start');
   updateHud();
@@ -393,7 +396,7 @@ function update(dt,now) {
     if(person.position.z>15)person.position.z-=220;
   }
   state.spawn-=dt;
-  if(state.spawn<=0){spawnTraffic();state.spawn=1.05+Math.random()*.72;}
+  if(state.spawn<=0){spawnTraffic();state.spawn=Math.max(.62,1.05+Math.random()*.72-state.deliveries*.11);}
   if(!pickup&&state.deliveries<3&&Math.random()<dt*.12)pickup=makePickup();
   for(let i=traffic.length-1;i>=0;i--){
     const item=traffic[i];item.object.position.z+=travel+item.speed*dt;

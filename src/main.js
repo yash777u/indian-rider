@@ -151,7 +151,7 @@ function makeChunk(z) {
 }
 for (let z=-220; z<20; z+=24) makeChunk(z);
 function applyFreeBuildings() {
-  if (!freeModels.shop && !freeModels.market) return;
+  if (!freeModels.shop || !freeModels.market) return;
   cityChunks.forEach((chunk, index) => {
     for (const info of chunk.userData.buildings || []) {
       const key = (index + (info.side > 0 ? 1 : 0)) % 3 === 0 && freeModels.market ? 'market' : 'shop';

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#101719" />
+    <meta name="description" content="Indian Rider — a chaotic 3D monsoon delivery rush through the streets of India." />
+    <title>Indian Rider — Monsoon Rush</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game"></div>
+      <div class="vignette"></div>
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark">IR</span><span>INDIAN <b>RIDER</b><small>MONSOON RUSH</small></span></a>
+        <div class="top-right"><span class="live-dot"></span><span>DELHI • DAY 01</span></div>
+      </header>
+      <section class="hud" id="hud" hidden>
+        <div class="hud-card"><small>DELIVERY TIME</small><strong id="timer">45.0</strong></div>
+        <div class="hud-card"><small>DELIVERIES</small><strong id="deliveries">0 <i>/ 3</i></strong></div>
+        <div class="hud-card"><small>TIP EARNED</small><strong id="score">₹0</strong></div>
+      </section>
+      <section class="intro" id="intro">
+        <div class="eyebrow"><span></span> THE CITY NEVER WAITS</div>
+        <h1>BEAT THE<br/><em>TRAFFIC.</em></h1>
+        <p>One scooter. Three deliveries. A city full of surprises.<br/>Can you make it before the rain gets worse?</p>
+        <button class="start-btn" id="start">START YOUR SHIFT <span>↗</span></button>
+        <div class="controls-hint"><span>←</span> <span>→</span> STEER <i>•</i> <span>SPACE</span> BRAKE</div>
+        <div class="mobile-note">Touch controls appear when you start</div>
+      </section>
+      <section class="mission" id="mission" hidden>
+        <div class="mission-icon">📦</div><div><small>NEW ORDER</small><strong>Deliver the parcel!</strong><span>Find the glowing drop zone</span></div>
+      </section>
+      <section class="result" id="result" hidden>
+        <div class="eyebrow">SHIFT COMPLETE</div><h2 id="result-title">NICE RUN, RIDER.</h2><p id="result-copy">The streets have tested you.</p>
+        <div class="result-score" id="result-score">₹0</div>
+        <button class="start-btn" id="again">RIDE AGAIN <span>↗</span></button>
+      </section>
+      <div class="touch-controls" id="touch-controls" hidden>
+        <button id="left" aria-label="Steer left">←</button><button id="brake" aria-label="Brake">BRAKE</button><button id="right" aria-label="Steer right">→</button>
+      </div>
+      <div class="bottom-hint" id="bottom-hint">WET ROADS • HEAVY TRAFFIC • BIG TIPS</div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

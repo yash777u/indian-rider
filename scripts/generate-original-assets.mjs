@@ -180,7 +180,7 @@ function makeBuilding(d,index){
   // Rooftop water tank, vents, parapets and a solar panel distinguish the silhouette.
   box(o,0,h+1.2,-2.4,7.8,.3,.25,d.a);
   cylinder(o,2.7,h+2.0,-1.8,.65,1.35,C.steel,12);
-  box(o,-2.4,h+1.45,-1.8,1.5,.12,1.1,C.charcoal).rotation;
+  box(o,-2.4,h+1.45,-1.8,1.5,.12,1.1,C.charcoal);
   return o;
 }
 function writeGlb(filename, meshes, extras={}) {
@@ -204,7 +204,7 @@ function writeGlb(filename, meshes, extras={}) {
     const ca=addAccessor(addView(Buffer.from(col.buffer),34962),5126,col.length/3,'VEC3');
     const mi=gltfMeshes.length;
     gltfMeshes.push({name:m.name,primitives:[{attributes:{POSITION:pa,NORMAL:na,COLOR_0:ca},mode:4,material:0}]});
-    nodes.push({name:m.name,mesh:mi});
+    nodes.push({name:m.name,mesh:mi,...(m.translation?{translation:m.translation}:{})});
   }
   const bin=Buffer.concat(binParts);
   const gltf={asset:{version:'2.0',generator:'Indian Rider Original Asset Forge'},scene:0,scenes:[{nodes:nodes.map((_,i)=>i)}],nodes,meshes:gltfMeshes,accessors,bufferViews:views,buffers:[{byteLength:bin.length}],materials:[{name:'Paint and material palette',pbrMetallicRoughness:{baseColorFactor:[1,1,1,1],metallicFactor:.18,roughnessFactor:.72},doubleSided:true}],extras};
@@ -224,7 +224,7 @@ for(let i=0;i<buildingDefs.length;i++){
 // Original Rider 125 scooter: separately named parts so wheels, steering and lean can be animated in Three.js.
 function makeScooter(){
   const parts=[];
-  const add=(name,fn)=>{const o={name,p:[],n:[],c:[]};fn(o);parts.push(o);};
+  const add=(name,fn,pivot=[0,0,0])=>{const o={name,p:[],n:[],c:[]};fn(o);for(let i=0;i<o.p.length;i+=3){o.p[i]-=pivot[0];o.p[i+1]-=pivot[1];o.p[i+2]-=pivot[2];}o.translation=pivot;parts.push(o);};
   const B=(o,x,y,z,w,h,d,c)=>box(o,x,y,z,w,h,d,c);
   add('Frame and floorboard',o=>{
     B(o,0,.66,.08,.72,.2,1.22,C.charcoal);B(o,0,.78,.1,.88,.13,.85,C.orange);
@@ -256,12 +256,12 @@ function makeScooter(){
     cylinder(o,0,.36,.78,.36,.18,C.black,24,'x');cylinder(o,0,.36,.78,.23,.2,C.steel,20,'x');
     cylinder(o,0,.36,.78,.1,.22,C.gold,16,'x');
     for(let i=0;i<8;i++){const a=i*Math.PI/4;B(o,0,.36+Math.cos(a)*.17,.78+Math.sin(a)*.17,.2,.035,.035,C.steel);}
-  });
+  },[0,.36,.78]);
   add('Front wheel',o=>{
     cylinder(o,0,.36,-.98,.36,.18,C.black,24,'x');cylinder(o,0,.36,-.98,.23,.2,C.steel,20,'x');
     cylinder(o,0,.36,-.98,.1,.22,C.gold,16,'x');
     for(let i=0;i<8;i++){const a=i*Math.PI/4;B(o,0,.36+Math.cos(a)*.17,-.98+Math.sin(a)*.17,.2,.035,.035,C.steel);}
-  });
+  },[0,.36,-.98]);
   add('Front suspension and mudguard',o=>{
     for(const x of [-.2,.2])cylinder(o,x,.72,-.94,.045,.82,C.steel,10);
     B(o,0,.77,-1.04,.84,.12,.62,C.orange);

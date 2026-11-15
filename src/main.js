@@ -218,7 +218,7 @@ function createScooter() {
   root.add(rider);
   root.userData.fallbackVehicle = fallbackVehicle;
   root.userData.wheels = [];
-  originalAssetLoader.load('/models/original/rider125_scooter.glb', gltf => {
+  originalAssetLoader.load('/models/original/r15_sport_bike.glb', gltf => {
     const scooter = gltf.scene;
     scooter.traverse(node => {
       if (node.isMesh) { node.castShadow = false; node.receiveShadow = false; }
@@ -227,7 +227,7 @@ function createScooter() {
     root.add(scooter);
     fallbackVehicle.visible = false;
     root.userData.originalScooter = scooter;
-  }, undefined, error => console.warn('Original scooter unavailable; using procedural fallback', error));
+  }, undefined, error => console.warn('Original R15-style bike unavailable; using procedural fallback', error));
   root.position.set(0,0,3.4);
   scene.add(root); return root;
 }

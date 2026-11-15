@@ -6,9 +6,9 @@ A browser-based 3D arcade driving prototype set in a stylised Indian city. Ride 
 - Original procedural North-Indian street kit: chai cart stalls with Hindi signboard, fabric awnings, utility wires, street lamps, kerb bollards, zebra crossings, speed breakers and drain grates
 - Atmospheric sky dome with warm horizon gradient, low sun and drifting cloud banks
 - Animated procedural pedestrians with varied outfits, body shapes, commuter bags and walking cycles
-- Repeating Indian-inspired city street with named storefronts, plus imported low-poly GLB shops, market buildings, traffic lights, bus stops and palm trees
-- Third-person scooter and rider model with lean, suspension bob and rotating wheels
-- Moving traffic: imported low-poly cars and buses (with procedural fallbacks), plus auto-rickshaws and cows
+- Repeating Indian city street populated with 20 original, individually generated GLB buildings (shops, dhaba, garage, bank, hospital, school, temple, mosque, gurdwara, cinema, market and more)
+- Original custom Rider 125 scooter GLB with separately named body parts and pivoted front/rear wheels, plus rider model, lean, suspension bob and wheel rotation
+- Moving traffic: procedural cars, auto-rickshaws, buses and cows
 - Sidewalk pedestrians, rain particles and scrolling road markings
 - Three parcel pickups, countdown timer, cash rewards and collision penalties
 - Pause/resume, minimap, nitro meter, synthesised sound effects and game-over/restart flow
@@ -56,18 +56,18 @@ This is a compact arcade city-driving slice, not a full GTA-scale open world. Th
 
 ## Next upgrades
 - Distinct neighbourhoods and route selection
-- Better vehicle models, traffic behaviours and pedestrian animations
+- Original low-poly traffic vehicle models, richer pedestrian animations and LOD variants
 - Scooter garage, upgrades and progression
 - Mission variety, police chase and day/night cycle
 - Richer recorded sound design, haptics and accessibility settings
 - Persistent local/cloud saves and leaderboards
 
-## Free 3D assets
-- Integrated CC0 GLB models from the [Low Poly City Kit by kayquer](https://github.com/kayquer/kit-cidade-lowpoly): corner shop, market, car, bus, traffic light, bus stop and buriti palm
-- The kit contains 129 low-poly models, each up to 1,500 triangles; commercial use and modification are allowed under CC0 1.0, with attribution optional
-- Models are loaded from jsDelivr at runtime to keep the Git repository and initial download lightweight; procedural geometry remains as a fallback if the CDN is unavailable
-- Asset source and licence notes are documented in [ASSET_SOURCES.md](ASSET_SOURCES.md)
-- No paid assets or API keys are required
+## Original 3D assets
+- 20 custom Indian-city building GLBs and one original Rider 125 scooter GLB are generated from source geometry by `scripts/generate-original-assets.mjs`
+- GLB 2.0 with PBR material settings and per-vertex colour; the scooter has separately named components and wheel pivots for runtime animation
+- Assets are generated before `npm run dev` and `npm run build`; the Vercel production build includes the GLBs under `/models/original/`
+- The game loads the local GLBs and retains procedural fallbacks if an asset fails to load
+- No third-party model pack, paid asset, external asset CDN or API key is required
 
 ## License
 MIT

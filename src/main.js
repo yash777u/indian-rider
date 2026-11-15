@@ -237,8 +237,9 @@ function bindHold(id,key) {
   for(const name of ['pointerup','pointercancel','lostpointercapture','pointerleave']) el.addEventListener(name,()=>{keys[key]=false;});
 }
 bindHold('left','left'); bindHold('right','right'); bindHold('brake','brake');
-const go=document.createElement('button');go.id='accelerate';go.className='touch-go';go.textContent='GO';
-$('touch-controls').appendChild(go);bindHold('accelerate','accelerate');
+const extraControls=document.createElement('div');extraControls.className='touch-extra';$('touch-controls').insertBefore(extraControls,$('brake'));
+const go=document.createElement('button');go.id='accelerate';go.className='touch-go';go.textContent='GO';extraControls.appendChild(go);bindHold('accelerate','accelerate');
+const nitro=document.createElement('button');nitro.id='nitro';nitro.className='touch-nitro';nitro.textContent='N₂O';extraControls.appendChild(nitro);bindHold('nitro','shift');
 
 function clearTraffic() {
   for(const item of traffic) scene.remove(item.object);
@@ -283,9 +284,10 @@ function update(dt,now) {
   if(right&&!keys._right){steer(1);keys._right=true;} if(!right)keys._right=false;
   const braking=keys.brake||keys.s||keys.arrowdown;
   const accelerating=keys.accelerate||keys.w||keys.arrowup||keys[' '];
-  if(accelerating&&state.boost>0){state.speed=THREE.MathUtils.damp(state.speed,34,2.5,dt);state.boost=Math.max(0,state.boost-19*dt);}
-  else state.speed=THREE.MathUtils.damp(state.speed,braking?7:23,braking?5:1.9,dt);
-  if(!accelerating)state.boost=Math.min(100,state.boost+5*dt);
+  const nitroActive=keys.shift&&state.boost>0&&!braking;
+  if(nitroActive){state.speed=THREE.MathUtils.damp(state.speed,36,2.8,dt);state.boost=Math.max(0,state.boost-24*dt);}
+  else state.speed=THREE.MathUtils.damp(state.speed,braking?7:accelerating?26:18,braking?5:2.2,dt);
+  if(!nitroActive)state.boost=Math.min(100,state.boost+7*dt);
   const travel=state.speed*dt;
   state.distance+=travel*.42;
   player.position.x=THREE.MathUtils.damp(player.position.x,lanes[state.lane],9,dt);

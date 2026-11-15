@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import './style.css';
 
 const $ = (id) => document.getElementById(id);
@@ -34,6 +35,29 @@ sun.position.set(-12, 25, 15);
 scene.add(sun);
 
 const mat = (color, roughness = .9, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
+const freeModels = {};
+const freeModelLoader = new GLTFLoader();
+const FREE_MODEL_BASE = 'https://cdn.jsdelivr.net/gh/kayquer/kit-cidade-lowpoly@main/models/';
+function fitFreeModel(template, maxWidth, maxHeight, maxDepth) {
+  const root = new THREE.Group();
+  const model = template.clone(true);
+  const bounds = new THREE.Box3().setFromObject(model);
+  const size = bounds.getSize(new THREE.Vector3());
+  const center = bounds.getCenter(new THREE.Vector3());
+  const scale = Math.min(maxWidth / Math.max(size.x, .001), maxHeight / Math.max(size.y, .001), maxDepth / Math.max(size.z, .001));
+  model.scale.setScalar(scale);
+  model.position.set(-center.x * scale, -bounds.min.y * scale, -center.z * scale);
+  model.traverse(node => { if (node.isMesh) { node.castShadow = false; node.receiveShadow = false; } });
+  root.add(model);
+  return root;
+}
+function loadFreeModel(key, path) {
+  freeModelLoader.load(FREE_MODEL_BASE + path, gltf => {
+    freeModels[key] = gltf.scene;
+    if (key === 'shop' || key === 'market') applyFreeBuildings();
+    if (key === 'trafficLight' || key === 'busStop' || key === 'palm') applyFreeStreetProps();
+  }, undefined, error => console.warn('Optional free model failed to load:', key, error));
+}
 const M = {
   asphalt: mat(0x303638), edge: mat(0xe4d6ad), pavement: mat(0x777d70),
   gold: mat(0xe3b64f, .42, { metalness: .2 }), black: mat(0x15191a),
@@ -106,6 +130,7 @@ function makeChunk(z) {
     }
     building.position.set(x, 0, 0);
     group.add(building);
+    (group.userData.buildings ||= []).push({ building, side, x, width, height, depth });
     // Street tree and a lamp add scale and recognizable roadside detail.
     const tree = new THREE.Group();
     cylinder(tree, .13, 2.4, mat(0x76533a), 0, 1.2, 0);
@@ -125,6 +150,49 @@ function makeChunk(z) {
   cityChunks.push(group);
 }
 for (let z=-220; z<20; z+=24) makeChunk(z);
+function applyFreeBuildings() {
+  if (!freeModels.shop && !freeModels.market) return;
+  cityChunks.forEach((chunk, index) => {
+    for (const info of chunk.userData.buildings || []) {
+      const key = (index + (info.side > 0 ? 1 : 0)) % 3 === 0 && freeModels.market ? 'market' : 'shop';
+      const template = freeModels[key] || freeModels.shop || freeModels.market;
+      if (!template || info.building.userData.freeModelApplied) continue;
+      const model = fitFreeModel(template, info.width * 1.05, info.height * 1.15, info.depth * 1.05);
+      model.position.set(info.x, 0, 0);
+      model.rotation.y = info.side < 0 ? Math.PI / 2 : -Math.PI / 2;
+      chunk.add(model);
+      info.building.visible = false;
+      info.building.userData.freeModelApplied = true;
+    }
+  });
+}
+function applyFreeStreetProps() {
+  cityChunks.forEach((chunk, index) => {
+    for (const side of [-1, 1]) {
+      const addProp = (key, x, z, width, height, depth, suffix) => {
+        const template = freeModels[key];
+        if (!template || chunk.userData['prop_' + key + '_' + side]) return;
+        const prop = fitFreeModel(template, width, height, depth);
+        prop.position.set(x, 0, z);
+        prop.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
+        chunk.add(prop);
+        chunk.userData['prop_' + key + '_' + side] = true;
+      };
+      if (index % 2 === 0) addProp('trafficLight', side * 6.65, 4.5, 1.1, 4.2, 1.1, 'signal');
+      if (index % 3 === 1) addProp('busStop', side * 8.2, -5.5, 3.2, 3.3, 2.2, 'stop');
+      if (index % 3 === 2) addProp('palm', side * 8.1, 6.5, 2.6, 6.5, 2.6, 'palm');
+    }
+  });
+}
+[
+  ['shop', 'comercial/loja_esquina.glb'],
+  ['market', 'comercial/mercado.glb'],
+  ['trafficLight', 'mobiliario/semaforo.glb'],
+  ['busStop', 'mobiliario/ponto_onibus.glb'],
+  ['palm', 'vegetacao/buriti.glb'],
+  ['car', 'veiculos/carro.glb'],
+  ['bus', 'veiculos/onibus.glb']
+].forEach(([key, path]) => loadFreeModel(key, path));
 
 function createScooter() {
   const root = new THREE.Group();
@@ -151,6 +219,10 @@ function createScooter() {
 const player = createScooter();
 
 function makeVehicle(type) {
+  if ((type === 'car' || type === 'bus') && freeModels[type]) {
+    const dimensions = type === 'bus' ? [2.25, 2.5, 4.6] : [1.55, 1.8, 2.8];
+    return fitFreeModel(freeModels[type], dimensions[0], dimensions[1], dimensions[2]);
+  }
   const group = new THREE.Group();
   if (type === 'cow') {
     box(group, 1.12, .72, .7, M.cream, 0, .88, 0);

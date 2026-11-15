@@ -60,7 +60,7 @@ box(scene, 100, .2, 250, M.pavement, 0, -.34, -95);
 for (const x of [-6.08, 6.08]) box(scene, .18, .025, 240, M.edge, x, -.015, -95);
 const laneMarks = [];
 for (let z=-215; z<22; z+=9) {
-  for (const x of [-3, 0, 3]) laneMarks.push(box(scene, .09, .025, 3.4, M.edge, x, -.005, z));
+  for (const x of [-3.15, -1.05, 1.05, 3.15]) laneMarks.push(box(scene, .09, .025, 3.4, M.edge, x, -.005, z));
 }
 const cityChunks = [];
 const facadeMats = [mat(0xc28d67), mat(0xd5c6a4), mat(0x9cae9c), mat(0xb7a58d), mat(0x879a9b), mat(0xd1b87d)];
@@ -209,7 +209,7 @@ const state = {mode:'menu',lane:2,speed:0,time:90,deliveries:0,cash:0,distance:0
 const keys = {};
 const dynamic = document.createElement('div');
 dynamic.className='game-dynamic';
-dynamic.innerHTML = '<button class="pause-game" id="pause-game" aria-label="Pause game">Ⅱ PAUSE</button><div class="game-stats"><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
+dynamic.innerHTML = '<button class="pause-game" id="pause-game" aria-label="Pause game">Ⅱ PAUSE</button><div class="game-stats"><span id="speed-stat">SPEED 0 KM/H</span><span id="boost-stat">NITRO 100%</span><span id="objective-stat">DELIVER 3 PARCELS</span></div><div class="game-toast" id="game-toast"></div><div class="game-modal" id="game-modal" hidden><small>TAKE A BREATHER</small><h2>RIDE <em>PAUSED.</em></h2><p>Your city can wait for a second.</p><button class="start-btn" id="resume-game">BACK TO THE ROAD ↗</button></div>';
 document.getElementById('app').appendChild(dynamic);
 const toast = (message) => { $('game-toast').textContent=message; $('game-toast').classList.add('show'); state.toast=1.25; };
 function updateHud() {
@@ -217,6 +217,7 @@ function updateHud() {
   $('deliveries').textContent=state.deliveries+' / 3';
   $('score').textContent='₹'+state.cash;
   $('boost-stat').textContent='NITRO '+Math.round(state.boost)+'%';
+  $('speed-stat').textContent='SPEED '+Math.round(state.speed*3.6)+' KM/H';
   $('objective-stat').textContent=state.deliveries>=3?'SHIFT COMPLETE':'DELIVER '+(3-state.deliveries)+' MORE';
 }
 function pause() {
@@ -340,7 +341,7 @@ function drawMap(){
   map.fillStyle='#1d2928';map.fillRect(0,0,100,100);
   map.fillStyle='#66716a';map.fillRect(29,0,42,100);
   map.strokeStyle='#d8c89c';map.setLineDash([5,5]);map.beginPath();map.moveTo(50,0);map.lineTo(50,100);map.stroke();map.setLineDash([]);
-  map.fillStyle='#e9bd61';map.beginPath();map.arc(50+(lanes[state.lane]-player.position.x)*4,77,5,0,Math.PI*2);map.fill();
+  map.fillStyle='#e9bd61';map.beginPath();map.arc(50+player.position.x*4.8,77,5,0,Math.PI*2);map.fill();
   if(pickup){map.fillStyle='#f5f1e7';map.fillRect(47+(pickup.position.x-player.position.x)*4,20,6,6);}
 }
 let last=performance.now(),mapClock=0;

@@ -308,6 +308,7 @@ $('resume-game').onclick=pause;
 addEventListener('keydown',(event)=>{
   const key=event.key.toLowerCase(); keys[key]=true;
   if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(key)) event.preventDefault();
+  if(key==='enter'&&(state.mode==='menu'||state.mode==='over')){start();return;}
   if(key==='escape'||key==='p') pause();
 });
 addEventListener('keyup',(event)=>{keys[event.key.toLowerCase()]=false;});
